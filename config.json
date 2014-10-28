@@ -1,0 +1,8 @@
+{
+	"Subdomain": "foo",
+	"Token": "access_token",
+	"IsMember": true,
+	"Emails": [
+		"someone@example.com"
+	]
+}
