@@ -60,10 +60,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("config.json loaded")
+
 	// Fetch (or create) profile info for each email address
 	var emails string
-	for _, e := range conf.Emails {
+	for i, e := range conf.Emails {
+		if i > 0 {
+			emails += ","
+		}
 		emails += fmt.Sprintf(`{"email":"%s"}`, e)
+
 	}
 	emails = "[" + emails + "]"
 
@@ -86,7 +92,7 @@ func main() {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf(" = %d\n", resp.StatusCode)
+		fmt.Printf("Get users error = %s\n", resp.Status)
 		os.Exit(1)
 	}
 
@@ -104,14 +110,14 @@ func main() {
 		url := "https://" + conf.Subdomain + ".microco.sm" + m.Meta.Links[0].Href + "/attributes/is_member?access_token=" + conf.Token
 
 		if conf.IsMember {
-			fmt.Print("Adding: " + m.ProfileName)
+			fmt.Printf("Adding: %s ", m.ProfileName)
 			req, err = http.NewRequest("PUT", url, bytes.NewBufferString(`{"value": true}`))
 		} else {
-			fmt.Print("Removing: " + m.ProfileName)
+			fmt.Printf("Removing: %s ", m.ProfileName)
 			req, err = http.NewRequest("DELETE", url, nil)
 		}
 		if err != nil {
-			fmt.Printf("Request error: %v\n", err)
+			fmt.Printf("\nRequest error: %v\n", err)
 			os.Exit(1)
 		}
 		req.Header.Set("Content-Type", "application/json")
@@ -119,14 +125,14 @@ func main() {
 		client := http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			fmt.Printf("Client error: %v\n", err)
+			fmt.Printf("\nClient error: %v\n", err)
 			os.Exit(1)
 		} else {
 			if resp.StatusCode == http.StatusOK {
-				fmt.Printf("OK")
+				fmt.Printf("OK\n")
 			} else {
 				if !conf.IsMember && resp.StatusCode == http.StatusNotFound {
-					fmt.Printf("OK")
+					fmt.Printf("OK\n")
 				}
 			}
 		}
